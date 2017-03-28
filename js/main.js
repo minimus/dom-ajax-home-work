@@ -73,7 +73,7 @@
     drawNewsSort(curSource, sources);
   }
 
-  let content = '', nav = '', sidebar = '', curCat = 'general', curSource = 'abc-news-au', curSort = 'top';
+  let nav = '', sidebar = '', curCat = 'general', curSource = 'abc-news-au', curSort = 'top';
   // Checking for valid browsers: Chrome 57+
   if (57 <= parseInt(window.navigator.userAgent.match(/(?:Chrome\/)(\d+)/)[1], 10)) {
     let categories = [];
