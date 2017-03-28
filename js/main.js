@@ -2,6 +2,7 @@
  * Created by minimus on 27.03.2017.
  */
 (function () {
+  // Fetching and drawing a news data using selected source and sort order
   function fetchNewsData(source, order) {
     let
       url = `https://newsapi.org/v1/articles?source=${source}&sortBy=${order}&apiKey=d1702297d6d44aed92f84e13cd0a0122`,
@@ -21,6 +22,7 @@
           }
           newsHolder.innerHTML = out;
         }
+        else if (j.status === 'error') throw new Error(j.message);
         else throw new Error('Oops! Something went wrong');
       })
       .catch(e => {
@@ -28,6 +30,7 @@
       });
   }
 
+  // Drawing the control for sorting news by available sort orders of current source
   function drawNewsSort(source, data) {
     const sorts = data.find(e => e.id === source).sortBysAvailable, order = document.querySelector('#order');
     let out = '<label for="sortOrder">Sort by</label> <select id="sortOrder">';
@@ -45,6 +48,7 @@
     fetchNewsData(curSource, curSort);
   }
 
+  // Drawing the controls for selecting news sources available for current category
   function drawNewsSources(category, data) {
     const sources = data.find(e => e.category === category).sources, sidebar = document.querySelector('#sidebar');
     let out = '<ul>';
@@ -75,7 +79,7 @@
     let categories = [];
     document.addEventListener('DOMContentLoaded', e => {
       const sources = new Request('https://newsapi.org/v1/sources?language=en');
-      // Building a list of categories and their sources
+      // Fetching data and building a list of a news categories and their sources
       fetch(sources)
         .then(r => r.json())
         .then(j => {
@@ -112,6 +116,7 @@
             }
             drawNewsSources(curCat, categories);
           }
+          else if (j.status === 'error') throw new Error(j.message);
           else throw new Error('Something went wrong...');
         })
         .catch(e => {
