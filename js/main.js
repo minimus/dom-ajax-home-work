@@ -2,32 +2,37 @@
  * Created by minimus on 27.03.2017.
  */
 (function () {
-  // Fetching and drawing a news data using selected source and sort order
-  function fetchNewsData(source, order) {
-    let
-      url = `https://newsapi.org/v1/articles?source=${source}&sortBy=${order}&apiKey=d1702297d6d44aed92f84e13cd0a0122`,
-      out = '';
-    const news = new Request(url), newsHolder = document.querySelector('#news-data');
-    fetch(news)
-      .then(r => r.json())
-      .then(j => {
-        if (j.status === 'ok') {
-          for (const article of j.articles) {
-            out += `<div class='news-article'><div class="news-image"><a href="${article.url}"><img src="${article.urlToImage}"></a></div>`;
-            out += `<div class="info"><a href="${article.url}"><h1>${article.title}</h1></a>`;
-            out += `<p class="info-line"><i class="material-icons news-date">schedule</i> <span class="art-info">${new Date(article.publishedAt).toLocaleDateString()}</span>`;
-            out += (article.author) ? ` <i class="material-icons news-author">face</i> <span class="art-info">${article.author}</span></p>` : "</p>";
-            out += `<p>${article.description}</p><p><a href="${article.url}">Read More...</a></p></div>`;
-            out += '</div>'
-          }
-          newsHolder.innerHTML = out;
+  // Fetching and drawing a news data using selected source and sort order using async/await.
+  // It is bad idea to use different methods of fetching data inside one script, but I want to try both.
+  async function fetchNewsData(source, order) {
+    const
+      url = new URL('https://newsapi.org/v1/articles'),
+      newsHolder = document.querySelector('#news-data');
+    let out = '';
+    url.searchParams.append('source', source);
+    url.searchParams.append('sortBy', order);
+    url.searchParams.append('apiKey', 'd1702297d6d44aed92f84e13cd0a0122');
+    try {
+      const
+        r = await fetch(url),
+        j = await r.json();
+      if (j.status === 'ok') {
+        for (const article of j.articles) {
+          out += `<div class='news-article'><div class="news-image"><a href="${article.url}"><img src="${article.urlToImage}"></a></div>`;
+          out += `<div class="info"><a href="${article.url}"><h1>${article.title}</h1></a>`;
+          out += `<p class="info-line"><i class="material-icons news-date">schedule</i> <span class="art-info">${new Date(article.publishedAt).toLocaleDateString()}</span>`;
+          out += (article.author) ? ` <i class="material-icons news-author">face</i> <span class="art-info">${article.author}</span></p>` : "</p>";
+          out += `<p>${article.description}</p><p><a href="${article.url}">Read More...</a></p></div>`;
+          out += '</div>'
         }
-        else if (j.status === 'error') throw new Error(j.message);
-        else throw new Error('Oops! Something went wrong');
-      })
-      .catch(e => {
-        console.log(e);
-      });
+        newsHolder.innerHTML = out;
+      }
+      else if (j.status === 'error') throw new Error(j.message);
+      else throw new Error('Oops! Something went wrong');
+    }
+    catch (e) {
+      console.log(e);
+    }
   }
 
   // Drawing the control for sorting news by available sort orders of current source
@@ -80,7 +85,7 @@
     let categories = [];
     document.addEventListener('DOMContentLoaded', e => {
       const sources = new Request('https://newsapi.org/v1/sources?language=en');
-      // Fetching data and building a list of a news categories and their sources
+      // Fetching data and building a list of a news categories and their sources using Fetch API
       fetch(sources)
         .then(r => r.json())
         .then(j => {
