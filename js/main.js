@@ -54,7 +54,8 @@
     let out = '<ul>';
     curSource = sources[0].id;
     for (const val of sources) {
-      out += `<li id="${val.id}" ${(val.id === curSource) ? 'class="selected"' : ''}><img src="${val.urlsToLogos.small}"><p>${val.name}</p></li>`
+      out += `<li id="${val.id}" ${(val.id === curSource) ? 'class="selected"' : ''} title="${val.description}">
+<img src="${val.urlsToLogos.small}"><p>${val.name}</p></li>`;
     }
     out += '</ul>';
     sidebar.innerHTML = out;
