@@ -3,16 +3,13 @@
  */
 'use strict';
 class App {
+  /**
+   * Creates instances of View, Model and Controller objects
+   */
   constructor() {
-    if (App.checkBrowser()) {
-      this.view = new View();
-      this.model = new Model(this.view);
-      this.controller = new Controller(this.view, this.model);
-    }
-  }
-
-  static checkBrowser() {
-    const match = window.navigator.userAgent.match(/(?:Chrome\/)(\d+)/);
-    return (match && 57 <= parseInt(match[1], 10));
+    this.view = new View();
+    this.model = new Model(this.view);
+    this.controller = new Controller(this.view, this.model);
+    this.controller.init();
   }
 }

@@ -3,13 +3,22 @@
  */
 'use strict';
 class Controller {
+  /**
+   * Creates Controller
+   * @param {View} view   - pointer to View instance
+   * @param {Model} model - pointer to Model instance
+   */
   constructor(view, model) {
     this.view = view;
     this.model = model;
-    this.init();
   }
 
+  /**
+   * Adds event listeners for events from View object.
+   * When any navigation control is inserted into the DOM, adds listeners to each item of it.
+   */
   init() {
+    this.model.init();
     document.addEventListener('categoriesRendered', e => {
       const naviList = this.view.naviList;
       if (naviList.length) {
