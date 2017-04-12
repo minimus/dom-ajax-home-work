@@ -102,7 +102,7 @@ class View {
     let out = '<ul>';
     this.curSource = sources[0].id;
     for (const val of sources) {
-      let logo = (val.urlsToLogos.small) ? val.urlsToLogos.small : 'images/no_image.png';
+      let logo = `https://icons.better-idea.org/icon?url=${val.url}&size=120`;
       out += `<li id="${val.id}" ${(val.id === this.curSource) ? 'class="selected"' : ''} title="${val.description}">`;
       out += `<span><img src="${logo}"></span>`;
       out += `<p>${val.name}</p>`;
