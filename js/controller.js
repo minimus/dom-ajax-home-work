@@ -25,11 +25,11 @@ class Controller {
         for (const element of naviList) {
           element.addEventListener('click', e => {
             if (element.id !== this.view.curCat) {
-              const prev = document.querySelector('nav ul li.selected');
+              const prev = document.querySelector('li[data-category].selected');
               prev.classList.remove('selected');
-              this.view.curCat = element.id;
+              this.view.curCat = element.dataset.category;
               element.classList.add('selected');
-              this.model.refreshSourcesData(element.id);
+              this.model.refreshSourcesData();
             }
           });
         }
@@ -41,11 +41,11 @@ class Controller {
       for (const element of sourceList) {
         element.addEventListener('click', e => {
           if (element.id !== this.view.curSource) {
-            const prev = document.querySelector('#sidebar ul li.selected');
+            const prev = document.querySelector('li[data-source].selected');
             prev.classList.remove('selected');
-            this.view.curSource = element.id;
+            this.view.curSource = element.dataset.source;
             element.classList.add('selected');
-            this.model.refreshSortOrderData(element.id);
+            this.model.refreshSortOrderData();
           }
         });
       }
@@ -58,7 +58,7 @@ class Controller {
         this.view.curSort = sortOrder.value;
         this.model.refreshNews(this.view.curSource, sortOrder.value);
       });
-      this.model.refreshNews();
+      this.model.refreshNews(this.view.curSource, this.view.curSort);
     });
   }
 }

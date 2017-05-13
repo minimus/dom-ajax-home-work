@@ -10,11 +10,44 @@ class View {
     this.curCat = '';
     this.curSource = '';
     this.curSort = '';
+
     this.navi = document.querySelector('nav');
     this.newsHolder = document.querySelector('#news-data');
+
     this.categoriesRenderedEvent = new CustomEvent('categoriesRendered');
     this.sourcesRenderedEvent = new CustomEvent('sourcesRendered');
     this.ordersRenderedEvent = new CustomEvent('ordersRendered');
+
+    document.addEventListener('navigationDataReady', e => {
+      const staticData = e.resData;
+      this.curCat = staticData[0].category;
+      this.curSource = staticData[0].sources[0].id;
+      this.curSort = staticData[0].sources[0].sortBysAvailable[0];
+      this.categories = staticData;
+    });
+
+    document.addEventListener('refreshSourcesData', e => {
+      const sources = e.resData.find(el => el.category === this.curCat).sources;
+      this.curSource = sources[0];
+      this.sources = sources;
+    });
+
+    document.addEventListener('refreshSortOrderData', e => {
+      const sortOrders = e.resData
+        .find(el => el.category === this.curCat).sources
+        .find(elem => elem.id === this.curSource).sortBysAvailable;
+
+      this.curSort = sortOrders[0];
+      this.sortOrders = sortOrders;
+    });
+
+    document.addEventListener('newsDataReady', e => {
+      this.news = e.resData;
+    });
+
+    document.addEventListener('renderDataError', e => {
+      this.newsHolder.innerHTML = e.resData;
+    })
   }
 
   /**
@@ -22,7 +55,7 @@ class View {
    * @returns {NodeList}
    */
   get naviList() {
-    return document.querySelectorAll('nav ul li');
+    return document.querySelectorAll('li[data-category]');
   }
 
   /**
@@ -30,7 +63,7 @@ class View {
    * @returns {NodeList}
    */
   get sourceList() {
-    return document.querySelectorAll('#sidebar ul li');
+    return document.querySelectorAll('li[data-source]');
   }
 
   /**
@@ -86,7 +119,7 @@ class View {
 
     nav += '<ul>';
     for (const cat of categories) {
-      nav += `<li id='${cat.category}' ${(cat.category === curCat) ? "class='selected'" : ''}>${cat.category.replace(/-/g, ' ')}</li>`;
+      nav += `<li id='${cat.category}' data-category="${cat.category}" ${(cat.category === curCat) ? "class='selected'" : ''}>${cat.category.replace(/-/g, ' ')}</li>`;
     }
     nav += '</ul>';
     this.navi.innerHTML = nav;
@@ -103,7 +136,7 @@ class View {
     this.curSource = sources[0].id;
     for (const val of sources) {
       let logo = `https://icons.better-idea.org/icon?url=${val.url}&size=64..64..128`;
-      out += `<li id="${val.id}" ${(val.id === this.curSource) ? 'class="selected"' : ''} title="${val.description}">`;
+      out += `<li id="${val.id}" data-source="${val.id}" ${(val.id === this.curSource) ? 'class="selected"' : ''} title="${val.description}">`;
       out += `<span><img src="${logo}"></span>`;
       out += `<p>${val.name}</p>`;
       out += '</li>';

@@ -8,7 +8,7 @@ class App {
    */
   constructor() {
     this.view = new View();
-    this.model = new Model(this.view);
+    this.model = new Model();
     this.controller = new Controller(this.view, this.model);
     this.controller.init();
   }

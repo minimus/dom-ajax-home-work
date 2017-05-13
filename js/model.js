@@ -5,13 +5,16 @@
 class Model {
   /**
    * Creates Model
-   * @param {View} view - pointer to View instance
    */
-  constructor(view) {
-    this.view = view;
+  constructor() {
     this.api = 'd1702297d6d44aed92f84e13cd0a0122';
     this.staticData = [];
     this.attempts = 5;
+    this.navDataReadyEvent = new CustomEvent('navigationDataReady');
+    this.refreshSourcesDataEvent = new CustomEvent('refreshSourcesData');
+    this.refreshSortOrderDataEvent = new CustomEvent('refreshSortOrderData');
+    this.newsDataReadyEvent = new CustomEvent('newsDataReady');
+    this.renderErrorEvent = new CustomEvent('renderDataError');
   }
 
   /**
@@ -21,10 +24,10 @@ class Model {
     this.getData('nav')
       .then(data => {
         this.staticData = this.prepareStaticData(data);
-        this.view.curCat = this.staticData[0].category;
-        this.view.curSource = this.staticData[0].sources[0].id;
-        this.view.curSort = this.staticData[0].sources[0].sortBysAvailable[0];
-        this.view.categories = this.staticData;
+
+        this.navDataReadyEvent.resData = this.staticData;
+
+        document.dispatchEvent(this.navDataReadyEvent);
       })
       .catch(e => {
         this.errorHandler(e, 'nav');
@@ -74,7 +77,11 @@ class Model {
         `Attempts left: ${this.attempts}`
       ] :
       ["Sorry! Can't resolve this problem... Try again later..."];
-    this.view.newsHolder.innerHTML = Model.renderWarning(['Sorry! The error has occurred on the News Server...', e, ...again]);
+
+    this.renderErrorEvent.resData = Model.renderWarning(['Sorry! The error has occurred on the News Server...', e, ...again]);
+
+    document.dispatchEvent(this.renderErrorEvent);
+
     if (this.attempts > 0) setTimeout(() => {
       this.attempts--;
       if (src === 'nav') this.init();
@@ -113,24 +120,20 @@ class Model {
 
   /**
    * Refreshes data of news sources in dependence of the current category
-   * @param {string} category - current category
    */
-  refreshSourcesData(category = this.view.curCat) {
-    const sources = this.staticData.find(e => e.category === category).sources;
-    this.view.curSource = sources[0];
-    this.view.sources = sources;
+  refreshSourcesData() {
+    this.refreshSourcesDataEvent.resData = this.staticData;
+
+    document.dispatchEvent(this.refreshSourcesDataEvent);
   }
 
   /**
    * Refreshes data of sort orders in dependence of the current news source
-   * @param {string} source - current source
    */
-  refreshSortOrderData(source = this.view.curSource) {
-    const sortOrders = this.staticData
-      .find(e => e.category === this.view.curCat).sources
-      .find(e => e.id === source).sortBysAvailable;
-    this.view.curSort = sortOrders[0];
-    this.view.sortOrders = sortOrders;
+  refreshSortOrderData() {
+    this.refreshSortOrderDataEvent.resData = this.staticData;
+
+    document.dispatchEvent(this.refreshSortOrderDataEvent);
   }
 
   /**
@@ -138,11 +141,12 @@ class Model {
    * @param {string} source - current source
    * @param {string} order
    */
-  refreshNews(source = this.view.curSource, order = this.view.curSort) {
+  refreshNews(source, order) {
     this.getData('news', source, order)
       .then(data => {
         if (data.status === 'ok') {
-          this.view.news = data;
+          this.newsDataReadyEvent.resData = data;
+          document.dispatchEvent(this.newsDataReadyEvent);
         }
         else if (data.status === 'error') {
           throw new Error(data.message);
