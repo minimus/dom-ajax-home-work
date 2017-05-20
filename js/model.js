@@ -53,14 +53,14 @@ class Model {
       url.searchParams.append('sortBy', order);
       url.searchParams.append('apiKey', this.api);
     }
-    else throw Error('Bad request');
+    else throw new Error('Bad request');
 
     try {
       const res = await fetch(url);
       return res.json();
     }
     catch (e) {
-      throw Error(e);
+      throw new Error(e);
     }
   }
 
